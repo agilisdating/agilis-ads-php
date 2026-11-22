@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Agilis\Ads\Tests\Integration;
 
 use Agilis\Ads\AgilisClient;
-use Agilis\Ads\Exception\InvalidRequestException;
+use Agilis\Ads\Exception\AgilisException;
 use Agilis\Ads\Exception\PermissionException;
 use Agilis\Ads\Upload;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,16 @@ use PHPUnit\Framework\TestCase;
  */
 final class TestModeTest extends TestCase
 {
-    private const SAMPLE = __DIR__ . '/../Fixtures/sample-offer.png';
+    private const SAMPLE_OFFER = __DIR__ . '/../Fixtures/sample-offer.png';
+
+    /** 1280 x 720, the minimum size of an Event image. */
+    private const SAMPLE_EVENT = __DIR__ . '/../Fixtures/sample-event.png';
+
+    /**
+     * Refusals caused by the state of the test account (balance, quota, audience, billing currency,
+     * Terms), not by the request. Only these turn a dry run into a skip.
+     */
+    private const ACCOUNT_STATE_CODES = ['E3', 'E4', 'E5', 'E6', 'E9'];
 
     private static ?AgilisClient $client = null;
 
@@ -114,15 +123,15 @@ final class TestModeTest extends TestCase
                 'push_notification_title' => 'SDK dry run',
                 'push_notification_message' => 'A dry run from the PHP SDK tests.',
                 'url' => 'https://www.agilis.dating',
-                'image' => Upload::fromPath(self::SAMPLE),
+                'image' => Upload::fromPath(self::SAMPLE_OFFER),
                 'location' => [51.5074, -0.1278],
                 'radius' => 10,
                 'start_datetime' => new \DateTimeImmutable('+1 day'),
                 'expiry_datetime' => new \DateTimeImmutable('+3 days'),
                 'payment_method' => 'B',
             ], dryRun: true);
-        } catch (InvalidRequestException $e) {
-            self::markTestSkipped(sprintf('The dry run was refused (%s): %s', $e->returnCode ?? 'no code', $e->getMessage()));
+        } catch (AgilisException $e) {
+            self::skipOnAccountState($e);
         }
 
         self::assertTrue($response['dry_run']);
@@ -142,12 +151,21 @@ final class TestModeTest extends TestCase
                 'starts_at' => new \DateTimeImmutable('+30 days'),
                 'ends_at' => new \DateTimeImmutable('+30 days 3 hours'),
                 'url' => 'https://www.agilis.dating',
-                'image' => Upload::fromPath(self::SAMPLE),
+                'image' => Upload::fromPath(self::SAMPLE_EVENT),
             ], dryRun: true);
-        } catch (InvalidRequestException $e) {
-            self::markTestSkipped(sprintf('The dry run was refused (%s): %s', $e->returnCode ?? 'no code', $e->getMessage()));
+        } catch (AgilisException $e) {
+            self::skipOnAccountState($e);
         }
 
         self::assertTrue($response['dry_run']);
+    }
+
+    private static function skipOnAccountState(AgilisException $e): never
+    {
+        if (in_array($e->returnCode, self::ACCOUNT_STATE_CODES, true)) {
+            self::markTestSkipped(sprintf('The test account cannot do this right now (%s): %s', $e->returnCode, $e->getMessage()));
+        }
+
+        throw $e;
     }
 }
