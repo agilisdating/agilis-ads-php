@@ -197,7 +197,7 @@ $event = $agilis->events->publish([
 $agilis->events->edit($event['event_id'], ['title' => 'Cuban Salsa: Friday Social']);
 ```
 
-`payment_method` defaults to `B` (the balance), the only method for Events. An edit that includes a new image is sent as a multipart `POST` with `X-HTTP-Method-Override: PATCH`, because file uploads need a POST body; an edit without one is a form-encoded `PATCH`.
+`payment_method` defaults to `B` (the balance), the only method for Events. An edit is always sent as a multipart `POST` with `X-HTTP-Method-Override: PATCH`, with or without a new image.
 
 ### Pagination
 

@@ -224,7 +224,7 @@ final class OperationsTest extends ClientTestCase
         self::assertSame(['2027-10-16T18:30:00Z'], $fields['starts_at']);
     }
 
-    public function testEditEventWithoutAFileIsAFormEncodedPatch(): void
+    public function testEditEventWithoutAFileIsAMultipartPostWithTheOverrideHeader(): void
     {
         $this->client()->events->edit(3104, [
             'title' => 'Thursday Comedy Club',
@@ -233,14 +233,18 @@ final class OperationsTest extends ClientTestCase
         ]);
 
         $request = $this->http->last();
-        self::assertSame('PATCH', $request->getMethod());
+        self::assertSame('POST', $request->getMethod());
         self::assertSame('/events/3104', $request->getUri()->getPath());
-        self::assertSame('application/x-www-form-urlencoded', $request->getHeaderLine('Content-Type'));
-        self::assertFalse($request->hasHeader('X-HTTP-Method-Override'));
-        self::assertSame(
-            'title=Thursday%20Comedy%20Club&location%5B%5D=51.5&location%5B%5D=-0.12&crop%5Bx%5D=10&crop%5By%5D=20&crop%5Bw%5D=1280',
-            (string) $request->getBody(),
-        );
+        self::assertSame('PATCH', $request->getHeaderLine('X-HTTP-Method-Override'));
+        self::assertStringStartsWith('multipart/form-data; boundary=', $request->getHeaderLine('Content-Type'));
+        self::assertSame([
+            'title' => ['Thursday Comedy Club'],
+            'location[]' => ['51.5', '-0.12'],
+            'crop[x]' => ['10'],
+            'crop[y]' => ['20'],
+            'crop[w]' => ['1280'],
+        ], self::fields($request));
+        self::assertSame([], array_filter(self::parts($request), fn(array $p): bool => $p['filename'] !== null), 'no file part');
     }
 
     public function testEditEventWithAFileIsAPostWithTheOverrideHeader(): void
