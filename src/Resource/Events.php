@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Agilis\Ads\Resource;
 
 use Agilis\Ads\ApiResponse;
-use Agilis\Ads\Internal\Body;
 use Agilis\Ads\Page;
 use Agilis\Ads\Upload;
 use Psr\Http\Message\StreamInterface;
@@ -156,20 +155,20 @@ final class Events extends AbstractResource
     /**
      * PATCH /events/{event_id}: changes the fields you send. Not the dates: use `reschedule()`.
      *
-     * With a new image the request is sent as a multipart POST with `X-HTTP-Method-Override: PATCH`,
-     * because file uploads need a POST body. Without one it is a form-encoded PATCH.
+     * Always sent as a multipart POST with `X-HTTP-Method-Override: PATCH`, with or without a new image,
+     * because multipart bodies need a POST.
      *
      * @param EditEventParams $params
      */
     public function edit(int $eventId, array $params): ApiResponse
     {
-        $path = '/events/' . self::segment($eventId);
-
-        if (Body::hasFile($params)) {
-            return $this->sendMultipart('POST', $path, $params, [], ['X-HTTP-Method-Override' => 'PATCH']);
-        }
-
-        return $this->transport->request('PATCH', $path, [], Body::form($params));
+        return $this->sendMultipart(
+            'POST',
+            '/events/' . self::segment($eventId),
+            $params,
+            [],
+            ['X-HTTP-Method-Override' => 'PATCH'],
+        );
     }
 
     /**
