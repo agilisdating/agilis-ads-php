@@ -4,7 +4,7 @@ All notable changes to this package are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
-## [0.1.0]
+## [0.1.0] - 2026-11-22
 
 ### Added
 
@@ -15,3 +15,6 @@ All notable changes to this package are recorded here. The format follows [Keep 
 - Idempotency keys for creating Offers and publishing Events, kept across retries.
 - Dry runs, retries with backoff and `Retry-After`, and typed exceptions.
 - `webhooks->constructEvent()` to verify webhook signatures.
+
+[Unreleased]: https://github.com/agilisdating/agilis-ads-php/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/agilisdating/agilis-ads-php/releases/tag/v0.1.0
