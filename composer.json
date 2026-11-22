@@ -1,0 +1,65 @@
+{
+    "name": "agilisdating/agilis-ads",
+    "description": "Official PHP client for the Agilis Advertising REST API: Offers, Events and webhooks.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["agilis", "advertising", "api", "sdk", "offers", "events", "webhooks", "psr-18"],
+    "homepage": "https://github.com/agilisdating/agilis-ads-php",
+    "support": {
+        "email": "help@agilis.dating",
+        "issues": "https://github.com/agilisdating/agilis-ads-php/issues",
+        "source": "https://github.com/agilisdating/agilis-ads-php",
+        "docs": "https://www.agilis.dating/api-doc"
+    },
+    "authors": [
+        {
+            "name": "Agilis",
+            "email": "help@agilis.dating",
+            "homepage": "https://www.agilis.dating"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "php-http/discovery": "^1.19",
+        "psr/http-client": "^1.0",
+        "psr/http-client-implementation": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-factory-implementation": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "guzzlehttp/guzzle": "^7.8",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "The suggested PSR-18 HTTP client. When installed, the SDK creates it with the timeout you set."
+    },
+    "autoload": {
+        "psr-4": {
+            "Agilis\\Ads\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Agilis\\Ads\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testsuite unit",
+        "test:integration": "phpunit --testsuite integration",
+        "analyse": "phpstan analyse --no-progress",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
